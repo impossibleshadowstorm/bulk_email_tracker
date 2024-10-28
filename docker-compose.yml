@@ -1,0 +1,37 @@
+volumes:
+  backend:
+  frontend:
+
+networks:
+  bulk_email:
+
+services:
+  backend:
+    env_file:
+      - ./backend/.env
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./backend/:/app
+    ports:
+      - 8000:8000
+    environment:
+      - NODE_ENV=development
+    networks:
+      - bulk_email
+
+  frontend:
+    environment:
+      WATCHPACK_POLLING: "true"
+    env_file:
+      - ./frontend/.env
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./frontend/:/app/
+    ports:
+      - 3000:3000
+    networks:
+      - bulk_email

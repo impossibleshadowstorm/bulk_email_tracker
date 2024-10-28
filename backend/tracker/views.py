@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse
 from .models import EmailStatus
-from .serializers import EmailStatusSerializer
 from django.conf import settings
-import requests
+import os
+from django.views.static import serve
 
 
 class SendBulkEmailView(APIView):
@@ -21,9 +21,7 @@ class SendBulkEmailView(APIView):
 
         for email in emails.split(","):
             tracking_hash = uuid.uuid4().hex
-            tracking_url = (
-                f"{request.build_absolute_uri('/tracker/track/')}?hash={tracking_hash}"
-            )
+            tracking_url = f"{request.build_absolute_uri(f'/api/tracker/track/{tracking_hash}/abc.jpg')}"
 
             message = (
                 '''\
@@ -32,7 +30,7 @@ class SendBulkEmailView(APIView):
                     <p>Hi,<br>
                     A 1x1 pixel is here somewhere try and find it! ;)</p>
                     <img src="'''
-                + tracking_url
+                + tracking_url.replace("http://", "https://")
                 + """">
                 </body>
                 </html>
@@ -77,22 +75,24 @@ class SendBulkEmailView(APIView):
 
 
 class TrackEmailOpenView(APIView):
-    def get(self, request):
-        tracking_hash = request.GET.get("hash")
-        if tracking_hash:
-            email_status = get_object_or_404(EmailStatus, tracking_hash=tracking_hash)
-            email_status.status = "opened"
-            email_status.save()
-            # Fetch the actual image and return it
-            image_url = (
-                "https://cdn.pixabay.com/photo/2022/01/11/21/48/link-6931554_640.png"
-            )
-            image_response = requests.get(image_url)
+    def get(self, request, hash):
+        # Get the email status based on the tracking hash
+        email_status = get_object_or_404(EmailStatus, tracking_hash=hash)
+        email_status.status = "opened"
+        email_status.save()
 
-            if image_response.status_code == 200:
-                return HttpResponse(image_response.content, content_type="image/png")
-            else:
-                return HttpResponse(status=404)
+        # Path to your local tracking image
+        image_path = os.path.join(settings.BASE_DIR, "static", "images", "abc.jpg")
 
-        # If no hash or image is not found, raise a 404
+        # Ensure the image exists
+        if os.path.exists(image_path):
+            with open(image_path, "rb") as image_file:
+                # Set the appropriate content type
+                response = HttpResponse(image_file.read(), content_type="image/jpeg")
+                response["Content-Disposition"] = (
+                    'inline; filename="abc.jpg"'  # Optional: For direct download
+                )
+                return response
+
+        # If the image is not found, return a 404 status
         return HttpResponse(status=404)

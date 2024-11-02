@@ -29,7 +29,7 @@ class SendBulkEmailView(APIView):
                 <body>
                     <p>Hi,<br>
                     A 1x1 pixel is here somewhere try and find it! ;)</p>
-                    <img src="'''
+                    <img height="0.5px" width="0.5px" src="'''
                 + tracking_url.replace("http://", "https://")
                 + """">
                 </body>
@@ -37,19 +37,6 @@ class SendBulkEmailView(APIView):
             """
             )
 
-            # Send email with tracking image
-            # message = f"""
-            #     <html>
-            #         <body>
-            #             <p>Dear User,</p>
-            #             <p>This is a test email. Please open this email to confirm.</p>
-            #             <!-- Tracking image -->
-            #             <img src="{tracking_url}" alt="Tracking Image" width="1" height="1" style="display:none;"/>
-            #             <p>Regards,</p>
-            #             <p>Your Company</p>
-            #         </body>
-            #     </html>
-            # """
             try:
                 send_mail(
                     subject="Tracking Email",

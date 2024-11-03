@@ -92,15 +92,28 @@ WSGI_APPLICATION = "bulk_email_tracker.wsgi.application"
 #     }
 # }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("DBNAME"),
+#         "USER": os.getenv("DBUSER"),
+#         "PASSWORD": os.getenv("DBPASSWORD"),
+#         "HOST": os.getenv("DBHOST"),
+#         "PORT": os.getenv("DBPORT"),
+#         "OPTIONS": {"options": f'-c search_path={os.getenv("DBSCHEMA")}'},
+#     }
+# }
+
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DBNAME"),
-        "USER": os.getenv("DBUSER"),
-        "PASSWORD": os.getenv("DBPASSWORD"),
-        "HOST": os.getenv("DBHOST"),
-        "PORT": os.getenv("DBPORT"),
-        "OPTIONS": {"options": f'-c search_path={os.getenv("DBSCHEMA")}'},
+        "NAME": tmpPostgres.path.replace("/", ""),
+        "USER": tmpPostgres.username,
+        "PASSWORD": tmpPostgres.password,
+        "HOST": tmpPostgres.hostname,
+        "PORT": 5432,
     }
 }
 

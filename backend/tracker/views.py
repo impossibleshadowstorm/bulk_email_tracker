@@ -28,7 +28,7 @@ class SendBulkEmailView(APIView):
                 <html>
                 <body>
                     <p>Hi,<br>
-                    A 1x1 pixel is here somewhere try and find it! ;)</p>
+                    A Simple Test mail ;)</p>
                     <img height="0.5px" width="0.5px" src="'''
                 + tracking_url.replace("http://", "https://")
                 + """">
